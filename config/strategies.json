@@ -1,0 +1,82 @@
+{
+  "strategies": [
+    {
+      "id": "forex-dca-eur",
+      "name": "EUR/USD DCA Strategy",
+      "type": "DCA",
+      "enabled": true,
+      "config": {
+        "symbol": "EURUSD",
+        "amount": 1000,
+        "frequency": "*/4 * * * *",
+        "minPrice": 1.05,
+        "maxPrice": 1.15
+      },
+      "riskManagement": {
+        "stopLoss": 0.02,
+        "takeProfit": 0.05,
+        "maxDrawdown": 0.1
+      }
+    },
+    {
+      "id": "gold-grid-trading",
+      "name": "Gold Grid Trading",
+      "type": "GRID_TRADING",
+      "enabled": false,
+      "config": {
+        "symbol": "XAUUSD",
+        "gridSize": 20,
+        "minPrice": 1900,
+        "maxPrice": 2100,
+        "orderSize": 0.1
+      },
+      "riskManagement": {
+        "maxPosition": 1,
+        "maxDrawdown": 0.15
+      }
+    },
+    {
+      "id": "signal-based-gbp",
+      "name": "GBP/USD Signal Trading",
+      "type": "SIGNAL_BASED",
+      "enabled": false,
+      "config": {
+        "symbol": "GBPUSD",
+        "indicators": {
+          "rsi": {
+            "period": 14,
+            "overbought": 70,
+            "oversold": 30
+          },
+          "macd": {
+            "fast": 12,
+            "slow": 26,
+            "signal": 9
+          }
+        }
+      },
+      "riskManagement": {
+        "stopLoss": 0.03,
+        "takeProfit": 0.06,
+        "maxPositions": 2
+      }
+    },
+    {
+      "id": "time-based-breakout",
+      "name": "Time-based Breakout",
+      "type": "TIME_BASED",
+      "enabled": false,
+      "config": {
+        "symbol": "USDJPY",
+        "buyTime": "14:30",
+        "sellTime": "18:00",
+        "quantity": 10,
+        "timezone": "UTC"
+      },
+      "riskManagement": {
+        "stopLoss": 0.025,
+        "takeProfit": 0.04
+      }
+    }
+  ]
+}
