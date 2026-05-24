@@ -1,3 +1,4 @@
+import os
 from decimal import Decimal
 
 import streamlit as st
@@ -13,7 +14,28 @@ def get_broker():
     return load_broker()
 
 
+def _password_gate() -> bool:
+    """Optional password gate. Set JUNOBOT_DASHBOARD_PASSWORD env var to enable.
+    Returns True if the user is authenticated (or gate is disabled)."""
+    expected = os.environ.get("JUNOBOT_DASHBOARD_PASSWORD")
+    if not expected:
+        return True
+    if st.session_state.get("authed"):
+        return True
+    st.title("🔒 Junobot")
+    pw = st.text_input("Password", type="password")
+    if st.button("Unlock"):
+        if pw == expected:
+            st.session_state["authed"] = True
+            st.rerun()
+        else:
+            st.error("Wrong password.")
+    return False
+
+
 def main():
+    if not _password_gate():
+        return
     st.title("📈 Junobot")
 
     try:

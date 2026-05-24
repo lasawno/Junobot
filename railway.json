@@ -4,7 +4,7 @@
     "builder": "DOCKERFILE"
   },
   "deploy": {
-    "startCommand": "python -m junobot.cli run AAPL",
+    "startCommand": "python -m junobot.ui.launcher",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }

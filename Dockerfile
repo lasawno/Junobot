@@ -21,4 +21,4 @@ RUN uv sync --frozen --no-dev
 
 ENV PATH="/opt/venv/bin:${PATH}"
 
-CMD ["python", "-m", "junobot.cli", "run", "AAPL"]
+CMD ["python", "-m", "junobot.ui.launcher"]
