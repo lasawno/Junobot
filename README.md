@@ -31,6 +31,12 @@ uv run junobot run AAPL TSLA --short 10 --long 30 --timeframe 1Min
 
 # Engine with real (paper) orders:
 uv run junobot run AAPL --no-dry-run --size-usd 500
+
+# News-sentiment strategy (Yahoo Finance + market RSS + VADER, fully free):
+uv run junobot run AAPL --strategy news_sentiment
+
+# Conservative composite: only trade when SMA crossover AND news agree:
+uv run junobot run AAPL --strategy sma_and_news
 ```
 
 `ALPACA_PAPER=true` (default) routes everything to the paper sandbox. Flip to `false` only when you trust the code.
@@ -49,6 +55,9 @@ Set `JUNOBOT_BROKER=robinhood` in `.env` to use the Robinhood adapter (not yet i
 - `src/junobot/strategies/base.py` — abstract `Strategy` + `Signal` / `Action` / `MarketContext`.
 - `src/junobot/strategies/sma_crossover.py` — SMA crossover reference implementation.
 - `src/junobot/engine.py` — Polling engine: ticks symbols, evaluates strategy, executes signals via the broker. Position-aware (won't double-buy, won't sell what we don't hold). Respects market hours by default.
+- `src/junobot/news/feed.py` — RSS news fetcher. Yahoo Finance per-ticker headlines + general market feeds (MarketWatch, DowJones). All free, no API keys.
+- `src/junobot/strategies/news_sentiment.py` — VADER sentiment on headlines, ticker-specific articles weighted 2x.
+- `src/junobot/strategies/composite.py` — `AndStrategy` combines multiple strategies (conservative: trades only on agreement).
 
 ## Adding a strategy
 

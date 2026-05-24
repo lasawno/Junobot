@@ -92,9 +92,14 @@ def sell(symbol: str, qty: float):
 @app.command()
 def run(
     symbols: list[str] = typer.Argument(..., help="Tickers to watch, e.g. AAPL TSLA"),
-    strategy: str = typer.Option("sma_crossover", help="Strategy name"),
-    short: int = typer.Option(10, help="Short SMA window (for sma_crossover)"),
-    long: int = typer.Option(30, help="Long SMA window (for sma_crossover)"),
+    strategy: str = typer.Option(
+        "sma_crossover", help="Strategy: sma_crossover | news_sentiment | sma_and_news"
+    ),
+    short: int = typer.Option(10, help="Short SMA window (sma_crossover, sma_and_news)"),
+    long: int = typer.Option(30, help="Long SMA window (sma_crossover, sma_and_news)"),
+    buy_threshold: float = typer.Option(0.25, help="News sentiment buy threshold (news strategies)"),
+    sell_threshold: float = typer.Option(-0.25, help="News sentiment sell threshold (news strategies)"),
+    min_articles: int = typer.Option(3, help="Min articles required to score sentiment (news strategies)"),
     timeframe: str = typer.Option("1Min", help="Bar timeframe: 1Min, 5Min, 15Min, 1Hour, 1Day"),
     bar_limit: int = typer.Option(100, help="How many historical bars to request per tick"),
     poll_seconds: int = typer.Option(60, help="Seconds between ticks"),
@@ -111,7 +116,14 @@ def run(
     )
 
     broker = _broker_or_exit()
-    strat = get_strategy(strategy, short=short, long=long)
+    strat = get_strategy(
+        strategy,
+        short=short,
+        long=long,
+        buy_threshold=buy_threshold,
+        sell_threshold=sell_threshold,
+        min_articles=min_articles,
+    )
 
     try:
         tf = BarTimeframe(timeframe)
