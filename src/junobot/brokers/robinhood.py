@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from junobot.brokers.base import Account, Broker, Order, OrderSide, Position, Quote
+from junobot.brokers.base import Account, Bar, BarTimeframe, Broker, Order, OrderSide, Position, Quote
 
 
 class RobinhoodBroker(Broker):
@@ -22,6 +22,9 @@ class RobinhoodBroker(Broker):
         raise NotImplementedError
 
     def get_quote(self, symbol: str) -> Quote:
+        raise NotImplementedError
+
+    def get_bars(self, symbol: str, timeframe: BarTimeframe, limit: int) -> list[Bar]:
         raise NotImplementedError
 
     def submit_market_order(self, symbol: str, qty: Decimal, side: OrderSide) -> Order:

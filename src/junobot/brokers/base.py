@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from datetime import datetime
 from decimal import Decimal
 from enum import Enum
 
@@ -7,6 +8,14 @@ from enum import Enum
 class OrderSide(str, Enum):
     BUY = "buy"
     SELL = "sell"
+
+
+class BarTimeframe(str, Enum):
+    MINUTE = "1Min"
+    FIVE_MINUTE = "5Min"
+    FIFTEEN_MINUTE = "15Min"
+    HOUR = "1Hour"
+    DAY = "1Day"
 
 
 @dataclass(frozen=True)
@@ -35,6 +44,17 @@ class Quote:
 
 
 @dataclass(frozen=True)
+class Bar:
+    symbol: str
+    timestamp: datetime
+    open: Decimal
+    high: Decimal
+    low: Decimal
+    close: Decimal
+    volume: Decimal
+
+
+@dataclass(frozen=True)
 class Order:
     id: str
     symbol: str
@@ -56,6 +76,9 @@ class Broker(ABC):
 
     @abstractmethod
     def get_quote(self, symbol: str) -> Quote: ...
+
+    @abstractmethod
+    def get_bars(self, symbol: str, timeframe: BarTimeframe, limit: int) -> list[Bar]: ...
 
     @abstractmethod
     def submit_market_order(self, symbol: str, qty: Decimal, side: OrderSide) -> Order: ...

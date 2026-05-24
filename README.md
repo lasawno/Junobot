@@ -25,6 +25,12 @@ uv run junobot buy AAPL 1          # market buy 1 share
 uv run junobot sell AAPL 1         # market sell 1 share
 
 uv run junobot-ui                  # launch Streamlit dashboard
+
+# Run the trading engine (dry-run by default — logs signals, no orders)
+uv run junobot run AAPL TSLA --short 10 --long 30 --timeframe 1Min
+
+# Engine with real (paper) orders:
+uv run junobot run AAPL --no-dry-run --size-usd 500
 ```
 
 `ALPACA_PAPER=true` (default) routes everything to the paper sandbox. Flip to `false` only when you trust the code.
@@ -39,6 +45,24 @@ Set `JUNOBOT_BROKER=robinhood` in `.env` to use the Robinhood adapter (not yet i
 - `src/junobot/brokers/alpaca.py` — Alpaca implementation using `alpaca-py`.
 - `src/junobot/brokers/robinhood.py` — stub; will use `robin_stocks` + TOTP MFA.
 - `src/junobot/config.py` — loads `.env` and picks the broker via `JUNOBOT_BROKER`.
-- `src/junobot/cli.py` — Typer CLI (`status`, `positions`, `quote`, `buy`, `sell`).
+- `src/junobot/cli.py` — Typer CLI (`status`, `positions`, `quote`, `buy`, `sell`, `run`).
+- `src/junobot/strategies/base.py` — abstract `Strategy` + `Signal` / `Action` / `MarketContext`.
+- `src/junobot/strategies/sma_crossover.py` — SMA crossover reference implementation.
+- `src/junobot/engine.py` — Polling engine: ticks symbols, evaluates strategy, executes signals via the broker. Position-aware (won't double-buy, won't sell what we don't hold). Respects market hours by default.
 
-Strategies aren't scaffolded yet — once the broker layer is proven against paper, we'll add `src/junobot/strategies/` with a similar abstract base.
+## Adding a strategy
+
+Subclass `Strategy` and implement `evaluate(ctx: MarketContext) -> Signal`:
+
+```python
+from junobot.strategies.base import Action, MarketContext, Signal, Strategy
+
+class MyStrategy(Strategy):
+    name = "my_strategy"
+    def evaluate(self, ctx: MarketContext) -> Signal:
+        if ctx.latest_close < 100:
+            return Signal(ctx.symbol, Action.BUY, reason="cheap")
+        return Signal(ctx.symbol, Action.HOLD)
+```
+
+Register it in `strategies/__init__.py::get_strategy` and run with `--strategy my_strategy`.
