@@ -10,11 +10,13 @@ RUN pip install --no-cache-dir uv
 
 WORKDIR /app
 
+# Install dependencies only (without the local project itself) — better Docker layer caching
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-dev
-
-COPY src/ ./src/
 COPY README.md ./
+RUN uv sync --frozen --no-dev --no-install-project
+
+# Now copy source and install the project itself
+COPY src/ ./src/
 RUN uv sync --frozen --no-dev
 
 ENV PATH="/opt/venv/bin:${PATH}"
